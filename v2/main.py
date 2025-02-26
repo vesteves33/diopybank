@@ -1,79 +1,65 @@
-#Primeira fase do projeto de sistema bancário consiste em implementar apenas 3 operações: depósito, saque e visualização do extrato da conta.
-#Depoisito: Apenas adição de valores positivos para a conta, todos os depósitos precisam ficar armazenados em uma variavel e precisam ser exibidos no extrato.
-#Saque: Pode ser permitido a realização de apenas 3 saques por dia com limite máximo de 500 reais por saque, não havendo saldo exibir mensagem ao usuario. Todas as operações armazenadas e exbidas no extrato
-#Extrato: Exibir todas as operações realizadas na conta do usuário e o formato dos valores devem ser em R$ xxxx.xx
+from utils import menu, depositar, sacar, mostrar_extrato, cadastrar_cliente, cadastrar_conta, listar_contas
 
 
-menu = """
-  Seja bem vindo ao banco DioPyBank
+def main():
+  LIMITE_DIARIO = 3
+  AGENCIA = "0001"
 
-  Selecione a opcao desejada:
-  [1] - Extrato
-  [2] - Saque
-  [3] - Deposito
-  [0] - Sair
-
-"""
-
-
-saldo = 0
-limite = 500
-numero_saque = 0
-LIMITE_DIARIO = 3
-extrato = ""
-
-
-while True:
+  saldo = 0
+  limite = 500
+  numero_saques = 0
+  extrato = ""
+  usuarios = []
+  contas = []
   
-  opcao = int(input(menu))
-  
-  if opcao == 1:
-    print(f"{"*"*10}EXTRATO{"*"*10}")
-    print("Não foram realizadas movimentação" if not extrato else extrato)
-    print(f"Saldo: R$ {saldo:.2f}")
-    print(f"{"*"*27}")
-    
+  while True:
+    opcao = int(menu())
 
-  elif opcao == 2:
-    valor = float(input("Digite o valor do saque: "))
-    
-    excedeu_saldo = saldo < valor
+    #Exibir extrato  
+    if opcao == 1: 
+      extrato = mostrar_extrato(saldo, extrato=extrato)
 
-    excedeu_limite = limite < valor 
+    #Sacar
+    elif opcao == 2:
+      valor = float(input("Digite o valor do saque: "))
+      
+      saldo, extrato = sacar(saldo=saldo, 
+                             valor=valor, 
+                             extrato=extrato, 
+                             limite=limite, 
+                             numero_saques=numero_saques, 
+                             limite_saques=LIMITE_DIARIO)
     
-    excedeu_saque = numero_saque >= LIMITE_DIARIO
+    #Depositar
+    elif opcao == 3:
+      valor = float(input("Digite o valor do deposito: "))
+      
+      saldo, extrato = depositar(saldo, valor, extrato)
     
-    if excedeu_saldo:
-      print("Por favor tente novamente, saldo insuficiente")
+    #Criar novo usuario
+    elif opcao == 4:
+      cadastrar_cliente(usuarios)
+    
+    #Criar nova conta
+    elif opcao == 5:
+      numero_conta = len(contas) + 1
+      conta = cadastrar_conta(AGENCIA, numero_conta, usuarios)
 
-    elif excedeu_limite:
-      print("O valor do saque excedeu o limite permitido, tente novamente")
-
-    elif excedeu_saque:
-      print("Limite de saques diarios excedidos, tente novamente amanha")
+      if conta:    
+        contas.append(conta)
     
+    #Listar contas
+    elif opcao == 6:
+      listar_contas(contas)
+
+    #Encerrar operação
+    elif opcao == 0:
+      print(f"Obrigado por usar o DioPyBank volte sempre")
+      break
+
     else:
-      saldo -= valor
-      numero_saque += 1
-      extrato += f"Saque: R$ {valor:.2f}\n"
-  
-  elif opcao == 3:
-    valor = float(input("Digite o valor do deposito: "))
-    
-    if valor > 0:
-      saldo += valor
-      extrato += f"Deposito: R$ {valor:.2f}\n"
-    
-    else:
-      print("O valor do deposito e invalido, tente novamente")
-  
-  elif opcao == 0:
-    print(f"Obrigado por usar o DioPyBank volte sempre")
-    break
+      print("Opção inválida, tente novamente")
+      
 
-  else:
-    print("Opção inválida")
-    
-
-
+main()
 
